@@ -1,5 +1,5 @@
 alias: "🎃 Halloween Atmosphere"
-description: "Creates various spooky lighting effects for Halloween (optimized for older bulbs)"
+description: "Creates various spooky lighting effects for Halloween (optimized for older bulbs, uses XY color space for better Zigbee compatibility)"
 mode: restart
 max_exceeded: silent
 fields:
@@ -37,10 +37,12 @@ sequence:
           - repeat:
               for_each: "{{ lights_list }}"
               sequence:
-                - service: light.turn_off
+                - service: light.turn_on
                   target:
                     entity_id: "{{ repeat.item }}"
                   data:
+                    brightness: 255
+                    xy_color: [0.3227, 0.329]  # Warm white
                     transition: 2
           - stop: "Halloween effect stopped"
 
@@ -60,7 +62,7 @@ sequence:
                     entity_id: "{{ repeat.item }}"
                   data:
                     brightness: 200
-                    rgb_color: [255, 50, 0]
+                    xy_color: [0.6736, 0.3221]  # Red-orange
                   continue_on_error: true
                 # Small delay between each light command
                 - delay:
@@ -74,12 +76,12 @@ sequence:
                   value_template: "{{ false }}"
               sequence:
                 - variables:
-                    # Color palette: reds and oranges
+                    # Color palette: reds and oranges (XY color space)
                     colors:
-                      - [255, 0, 0]      # Pure red
-                      - [255, 50, 0]     # Red-orange
-                      - [255, 100, 0]    # Orange
-                      - [200, 0, 0]      # Dark red
+                      - [0.7006, 0.2993]  # Pure red
+                      - [0.6736, 0.3221]  # Red-orange
+                      - [0.6389, 0.3548]  # Orange
+                      - [0.6750, 0.3220]  # Dark red
                     # Brightness variations
                     brightness_levels:
                       - 255
@@ -94,7 +96,7 @@ sequence:
                         target:
                           entity_id: "{{ repeat.item }}"
                         data:
-                          rgb_color: "{{ colors | random }}"
+                          xy_color: "{{ colors | random }}"
                           brightness: "{{ brightness_levels | random }}"
                           transition: "{{ range(2, 4) | random }}"
                         continue_on_error: true
@@ -121,7 +123,7 @@ sequence:
                     entity_id: "{{ repeat.item }}"
                   data:
                     brightness: 5
-                    rgb_color: [100, 100, 150]
+                    xy_color: [0.3127, 0.329]  # Cool bluish-white
                   continue_on_error: true
                 - delay:
                     milliseconds: 100
@@ -147,7 +149,7 @@ sequence:
                           entity_id: "{{ repeat.item }}"
                         data:
                           brightness: "{{ range(3, 10) | random }}"
-                          rgb_color: [100, 100, 150]
+                          xy_color: [0.3127, 0.329]  # Cool bluish-white
                           transition: 1
                         continue_on_error: true
                       - delay:
@@ -168,7 +170,7 @@ sequence:
                                 entity_id: "{{ repeat.item }}"
                               data:
                                 brightness: 255
-                                rgb_color: [255, 255, 255]
+                                xy_color: [0.3227, 0.329]  # Bright white
                                 transition: 0
                               continue_on_error: true
                             # Delay creates traveling effect + prevents command overflow
@@ -186,7 +188,7 @@ sequence:
                                 entity_id: "{{ repeat.item }}"
                               data:
                                 brightness: "{{ range(3, 10) | random }}"
-                                rgb_color: [100, 100, 150]
+                                xy_color: [0.3127, 0.329]  # Cool bluish-white
                                 transition: 0
                               continue_on_error: true
                             - delay:
@@ -211,7 +213,7 @@ sequence:
                     entity_id: "{{ repeat.item }}"
                   data:
                     brightness: 40
-                    rgb_color: [0, 100, 80]
+                    xy_color: [0.2039, 0.4443]  # Dark teal
                   continue_on_error: true
                 - delay:
                     milliseconds: 100
@@ -223,28 +225,36 @@ sequence:
                 - condition: template
                   value_template: "{{ false }}"
               sequence:
-                - variables:
-                    # Dark, eerie color palette
-                    colors:
-                      - [0, 150, 50]     # Muted poison green
-                      - [0, 100, 80]     # Dark teal
-                      - [20, 80, 120]    # Fog blue (very dark)
-                      - [0, 80, 40]      # Gloomy moss green
-                    # Low brightness for creepy atmosphere
-                    brightness_levels:
-                      - 40
-                      - 50
-                      - 30
-                      - 60
                 # Apply effect to each light sequentially
                 - repeat:
                     for_each: "{{ lights_list }}"
                     sequence:
+                      - variables:
+                          # Dark, eerie color palette (XY color space)
+                          colors:
+                            - [0.1724, 0.6531]  # Muted poison green
+                            - [0.2039, 0.4443]  # Dark teal
+                            - [0.1607, 0.2218]  # Fog blue (very dark)
+                            - [0.2182, 0.6225]  # Gloomy moss green
+                            - [0.1649, 0.5703]  # Sickly lime green
+                            - [0.2127, 0.3608]  # Deep sea green
+                            - [0.1532, 0.2947]  # Midnight blue
+                            - [0.1940, 0.4953]  # Toxic green
+                            - [0.1781, 0.2843]  # Ghost blue
+                            - [0.2458, 0.5841]  # Swamp green
+                          # Low brightness for creepy atmosphere
+                          brightness_levels:
+                            - 40
+                            - 50
+                            - 30
+                            - 60
+                            - 35
+                            - 45
                       - service: light.turn_on
                         target:
                           entity_id: "{{ repeat.item }}"
                         data:
-                          rgb_color: "{{ colors | random }}"
+                          xy_color: "{{ colors | random }}"
                           brightness: "{{ brightness_levels | random }}"
                           transition: "{{ range(5, 10) | random }}"
                         continue_on_error: true
@@ -271,7 +281,7 @@ sequence:
                     entity_id: "{{ repeat.item }}"
                   data:
                     brightness: 200
-                    rgb_color: [255, 100, 0]
+                    xy_color: [0.6389, 0.3548]  # Pumpkin orange
                   continue_on_error: true
                 - delay:
                     milliseconds: 100
@@ -284,14 +294,14 @@ sequence:
                   value_template: "{{ false }}"
               sequence:
                 - variables:
-                    # Halloween color palette
+                    # Halloween color palette (XY color space)
                     colors:
-                      - [255, 100, 0]    # Pumpkin orange
-                      - [200, 0, 255]    # Purple
-                      - [150, 0, 200]    # Dark purple
-                      - [255, 150, 0]    # Bright orange
-                      - [0, 255, 50]     # Poison green
-                      - [50, 255, 0]     # Lime green
+                      - [0.6389, 0.3548]  # Pumpkin orange
+                      - [0.3645, 0.1765]  # Purple
+                      - [0.3833, 0.1591]  # Dark purple
+                      - [0.5801, 0.3959]  # Bright orange
+                      - [0.2138, 0.7097]  # Poison green
+                      - [0.2679, 0.6616]  # Lime green
                     # Brightness variations
                     brightness_levels:
                       - 200
@@ -306,7 +316,7 @@ sequence:
                         target:
                           entity_id: "{{ repeat.item }}"
                         data:
-                          rgb_color: "{{ colors | random }}"
+                          xy_color: "{{ colors | random }}"
                           brightness: "{{ brightness_levels | random }}"
                           transition: "{{ range(3, 6) | random }}"
                         continue_on_error: true
