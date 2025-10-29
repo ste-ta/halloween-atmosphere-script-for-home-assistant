@@ -1,0 +1,320 @@
+alias: "🎃 Halloween Atmosphere"
+description: "Creates various spooky lighting effects for Halloween (optimized for older bulbs)"
+mode: restart
+max_exceeded: silent
+fields:
+  lights:
+    description: "List of light entity IDs"
+    example: "light.living_room, light.hallway, light.kitchen"
+    selector:
+      entity:
+        multiple: true
+        domain: light
+  effect:
+    description: "Which effect to play"
+    example: "hell"
+    selector:
+      select:
+        options:
+          - "hell"
+          - "lightning"
+          - "graveyard"
+          - "halloween"
+          - "stop"
+variables:
+  # Convert single entity or list to list format
+  lights_list: >
+    {{ lights if lights is iterable and lights is not string else [lights] }}
+sequence:
+  - choose:
+      # ============================================================
+      # 🛑 STOP - End effect and restore lights
+      # ============================================================
+      - conditions:
+          - condition: template
+            value_template: "{{ effect == 'stop' }}"
+        sequence:
+          - repeat:
+              for_each: "{{ lights_list }}"
+              sequence:
+                - service: light.turn_on
+                  target:
+                    entity_id: "{{ repeat.item }}"
+                  data:
+                    brightness: 255
+                    rgb_color: [255, 255, 255]
+                    transition: 2
+          - stop: "Halloween effect stopped"
+
+      # ============================================================
+      # 🔥 HELL - Red and orange flickering flames
+      # ============================================================
+      - conditions:
+          - condition: template
+            value_template: "{{ effect == 'hell' }}"
+        sequence:
+          # Initialize all lights to a base state
+          - repeat:
+              for_each: "{{ lights_list }}"
+              sequence:
+                - service: light.turn_on
+                  target:
+                    entity_id: "{{ repeat.item }}"
+                  data:
+                    brightness: 200
+                    rgb_color: [255, 50, 0]
+                  continue_on_error: true
+                # Small delay between each light command
+                - delay:
+                    milliseconds: 100
+          - delay:
+              milliseconds: 1000
+          # Main effect loop
+          - repeat:
+              until:
+                - condition: template
+                  value_template: "{{ false }}"
+              sequence:
+                - variables:
+                    # Color palette: reds and oranges
+                    colors:
+                      - [255, 0, 0]      # Pure red
+                      - [255, 50, 0]     # Red-orange
+                      - [255, 100, 0]    # Orange
+                      - [200, 0, 0]      # Dark red
+                    # Brightness variations
+                    brightness_levels:
+                      - 255
+                      - 200
+                      - 150
+                      - 100
+                # Apply effect to each light with proper spacing
+                - repeat:
+                    for_each: "{{ lights_list }}"
+                    sequence:
+                      - service: light.turn_on
+                        target:
+                          entity_id: "{{ repeat.item }}"
+                        data:
+                          rgb_color: "{{ colors | random }}"
+                          brightness: "{{ brightness_levels | random }}"
+                          transition: "{{ range(2, 4) | random }}"
+                        continue_on_error: true
+                      # Mandatory delay between commands (critical for old Hue bulbs)
+                      - delay:
+                          milliseconds: 150
+                # Wait before next cycle
+                - delay:
+                    seconds: "{{ range(4, 7) | random }}"
+
+      # ============================================================
+      # ⚡ LIGHTNING - Fast white flashes with darkness
+      # ============================================================
+      - conditions:
+          - condition: template
+            value_template: "{{ effect == 'lightning' }}"
+        sequence:
+          # Initialize all lights to dark state
+          - repeat:
+              for_each: "{{ lights_list }}"
+              sequence:
+                - service: light.turn_on
+                  target:
+                    entity_id: "{{ repeat.item }}"
+                  data:
+                    brightness: 5
+                    rgb_color: [100, 100, 150]
+                  continue_on_error: true
+                - delay:
+                    milliseconds: 100
+          - delay:
+              milliseconds: 1000
+          # Main effect loop
+          - repeat:
+              until:
+                - condition: template
+                  value_template: "{{ false }}"
+              sequence:
+                - variables:
+                    # Random wait time until next lightning
+                    lightning_wait_time: "{{ range(2, 6) | random }}"
+                    # Number of flashes in this sequence
+                    lightning_count: "{{ range(2, 4) | random }}"
+                # Set all lights to dark
+                - repeat:
+                    for_each: "{{ lights_list }}"
+                    sequence:
+                      - service: light.turn_on
+                        target:
+                          entity_id: "{{ repeat.item }}"
+                        data:
+                          brightness: "{{ range(3, 10) | random }}"
+                          rgb_color: [100, 100, 150]
+                          transition: 1
+                        continue_on_error: true
+                      - delay:
+                          milliseconds: 100
+                # Wait in darkness
+                - delay:
+                    seconds: "{{ lightning_wait_time }}"
+                # Lightning flash sequence
+                - repeat:
+                    count: "{{ lightning_count }}"
+                    sequence:
+                      # Flash on - staggered across lights
+                      - repeat:
+                          for_each: "{{ lights_list }}"
+                          sequence:
+                            - service: light.turn_on
+                              target:
+                                entity_id: "{{ repeat.item }}"
+                              data:
+                                brightness: 255
+                                rgb_color: [255, 255, 255]
+                                transition: 0
+                              continue_on_error: true
+                            # Delay creates traveling effect + prevents command overflow
+                            - delay:
+                                milliseconds: 100
+                      # Short pause at peak brightness
+                      - delay:
+                          milliseconds: "{{ range(100, 300) | random }}"
+                      # Flash off - staggered across lights
+                      - repeat:
+                          for_each: "{{ lights_list }}"
+                          sequence:
+                            - service: light.turn_on
+                              target:
+                                entity_id: "{{ repeat.item }}"
+                              data:
+                                brightness: "{{ range(3, 10) | random }}"
+                                rgb_color: [100, 100, 150]
+                                transition: 0
+                              continue_on_error: true
+                            - delay:
+                                milliseconds: 100
+                      # Pause between flashes
+                      - delay:
+                          milliseconds: "{{ range(200, 600) | random }}"
+
+      # ============================================================
+      # 🪦 GRAVEYARD - Slow green-blue fog effects
+      # ============================================================
+      - conditions:
+          - condition: template
+            value_template: "{{ effect == 'graveyard' }}"
+        sequence:
+          # Initialize all lights to base fog color
+          - repeat:
+              for_each: "{{ lights_list }}"
+              sequence:
+                - service: light.turn_on
+                  target:
+                    entity_id: "{{ repeat.item }}"
+                  data:
+                    brightness: 40
+                    rgb_color: [0, 100, 80]
+                  continue_on_error: true
+                - delay:
+                    milliseconds: 100
+          - delay:
+              milliseconds: 1000
+          # Main effect loop
+          - repeat:
+              until:
+                - condition: template
+                  value_template: "{{ false }}"
+              sequence:
+                - variables:
+                    # Dark, eerie color palette
+                    colors:
+                      - [0, 150, 50]     # Muted poison green
+                      - [0, 100, 80]     # Dark teal
+                      - [20, 80, 120]    # Fog blue (very dark)
+                      - [0, 80, 40]      # Gloomy moss green
+                    # Low brightness for creepy atmosphere
+                    brightness_levels:
+                      - 40
+                      - 50
+                      - 30
+                      - 60
+                # Apply effect to each light sequentially
+                - repeat:
+                    for_each: "{{ lights_list }}"
+                    sequence:
+                      - service: light.turn_on
+                        target:
+                          entity_id: "{{ repeat.item }}"
+                        data:
+                          rgb_color: "{{ colors | random }}"
+                          brightness: "{{ brightness_levels | random }}"
+                          transition: "{{ range(5, 10) | random }}"
+                        continue_on_error: true
+                      # Longer delay for slow transitions
+                      - delay:
+                          milliseconds: 200
+                # Long pause between changes
+                - delay:
+                    seconds: "{{ range(6, 14) | random }}"
+
+      # ============================================================
+      # 🎃 HALLOWEEN - Classic orange-purple-green combination
+      # ============================================================
+      - conditions:
+          - condition: template
+            value_template: "{{ effect == 'halloween' }}"
+        sequence:
+          # Initialize all lights to pumpkin orange
+          - repeat:
+              for_each: "{{ lights_list }}"
+              sequence:
+                - service: light.turn_on
+                  target:
+                    entity_id: "{{ repeat.item }}"
+                  data:
+                    brightness: 200
+                    rgb_color: [255, 100, 0]
+                  continue_on_error: true
+                - delay:
+                    milliseconds: 100
+          - delay:
+              milliseconds: 1000
+          # Main effect loop
+          - repeat:
+              until:
+                - condition: template
+                  value_template: "{{ false }}"
+              sequence:
+                - variables:
+                    # Halloween color palette
+                    colors:
+                      - [255, 100, 0]    # Pumpkin orange
+                      - [200, 0, 255]    # Purple
+                      - [150, 0, 200]    # Dark purple
+                      - [255, 150, 0]    # Bright orange
+                      - [0, 255, 50]     # Poison green
+                      - [50, 255, 0]     # Lime green
+                    # Brightness variations
+                    brightness_levels:
+                      - 200
+                      - 180
+                      - 150
+                      - 220
+                # Apply effect to each light sequentially
+                - repeat:
+                    for_each: "{{ lights_list }}"
+                    sequence:
+                      - service: light.turn_on
+                        target:
+                          entity_id: "{{ repeat.item }}"
+                        data:
+                          rgb_color: "{{ colors | random }}"
+                          brightness: "{{ brightness_levels | random }}"
+                          transition: "{{ range(3, 6) | random }}"
+                        continue_on_error: true
+                      # Stagger for lively effect + prevent command overflow
+                      - delay:
+                          milliseconds: 150
+                # Wait before next cycle
+                - delay:
+                    seconds: "{{ range(4, 9) | random }}"
