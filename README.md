@@ -2,6 +2,17 @@
 
 A comprehensive Home Assistant script that creates various spooky lighting effects for Halloween. Optimized for reliability with older smart bulbs.
 
+---
+
+**Script Parameters:**
+- `lights` (required): Single entity ID or list of light entity IDs
+- `effect` (required): One of: `hell`, `lightning`, `graveyard`, `halloween`, `stop`
+
+**Compatibility:**
+- Home Assistant 2023.x and newer
+- Any RGB lights supporting `light.turn_on` with `rgb_color` and `brightness`
+
+
 ## ✨ Features
 
 - **5 Different Effects**: Hell (fire), Lightning (storm), Graveyard (fog), Halloween (classic colors), and Stop
@@ -240,16 +251,3 @@ This project is provided as-is for personal and commercial use. Feel free to mod
 
 Created with 💀 for the Home Assistant community.
 
----
-
-**Script Parameters:**
-- `lights` (required): Single entity ID or list of light entity IDs
-- `effect` (required): One of: `hell`, `lightning`, `graveyard`, `halloween`, `stop`
-
-**Compatibility:**
-- Home Assistant 2023.x and newer
-- Any RGB lights supporting `light.turn_on` with `rgb_color` and `brightness`
-- Tested with: Philips Hue (all generations), WLED, Shelly RGBW2, Yeelight
-
-**Support:**
-If you find this useful, consider starring the repository and sharing it with other Home Assistant users! 🌟
