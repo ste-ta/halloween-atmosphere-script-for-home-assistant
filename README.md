@@ -6,7 +6,7 @@ A comprehensive Home Assistant script that creates various spooky lighting effec
 
 **Script Parameters:**
 - `lights` (required): Single entity ID or list of light entity IDs
-- `effect` (required): One of: `hell`, `lightning`, `graveyard`, `halloween`, `stop`
+- `effect` (required): One of: `hell`, `lightning`, `graveyard`, `halloween`,`blood`, `stop`
 
 **Compatibility:**
 - Home Assistant 2023.x and newer
@@ -15,7 +15,7 @@ A comprehensive Home Assistant script that creates various spooky lighting effec
 
 ## ✨ Features
 
-- **5 Different Effects**: Hell (fire), Lightning (storm), Graveyard (fog), Halloween (classic colors), and Stop
+- **6 Different Effects**: Hell (fire), Lightning (storm), Graveyard (fog),Blood, Halloween (classic colors), and Stop
 - **Smart Bulb Optimized**: Special handling for older Philips Hue bulbs that prevents freezing and unavailability
 - **Individual Light Control**: Each light gets random variations for organic, lifelike effects
 - **Restart Mode**: Automatically stops previous effect when starting a new one
