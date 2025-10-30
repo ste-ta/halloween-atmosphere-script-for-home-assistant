@@ -44,6 +44,14 @@ Slow, creeping green-blue fog effects with very low brightness.
 - **Transition**: 5-10 seconds (very slow)
 - **Perfect for**: Eerie atmosphere, haunted house vibes
 
+### 🩸 Blood Pulse
+Deep red heartbeat rhythm - double pulse (LUB-DUB) then darkness.
+
+- **Colors**: Dark red, blood red, crimson
+- **Brightness** 5-200 (wide range for dramatic pulse)
+- **Transition** Rhythmic (heartbeat pattern)
+- **Perfect for**: Vampire themes, horror scenes, dramatic effect, heartbeat sound sync
+
 ### 🎃 Halloween
 Classic Halloween colors with dynamic transitions.
 - **Colors**: Pumpkin orange, purple, dark purple, poison green, lime green
