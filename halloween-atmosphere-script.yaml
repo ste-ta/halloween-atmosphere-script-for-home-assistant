@@ -26,7 +26,21 @@ variables:
   # Convert single entity or list to list format
   lights_list: >
     {{ lights if lights is iterable and lights is not string else [lights] }}
+  # Unique scene id per run to allow parallel executions without clashing
+  scene_backup_id: "halloween_backup_{{ now().strftime('%Y%m%d%H%M%S') }}_{{ range(1000, 9999) | random }}"
 sequence:
+  # Create a snapshot scene for this run (only when starting an effect)
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ effect != 'stop' }}"
+        sequence:
+          - service: scene.create
+            data:
+              scene_id: "{{ scene_backup_id }}"
+              snapshot_entities: "{{ lights_list }}"
+            continue_on_error: true
+
   - choose:
       # ============================================================
       # 🛑 STOP - End effect and restore lights
@@ -35,16 +49,25 @@ sequence:
           - condition: template
             value_template: "{{ effect == 'stop' }}"
         sequence:
-          - repeat:
-              for_each: "{{ lights_list }}"
-              sequence:
-                - service: light.turn_on
-                  target:
-                    entity_id: "{{ repeat.item }}"
-                  data:
-                    brightness: 255
-                    xy_color: [0.3227, 0.329]  # Warm white
-                    transition: 2
+          # Try restoring the snapshot scene created at start of this run
+          - service: scene.turn_on
+            target:
+              entity_id: "scene.{{ scene_backup_id }}"
+            data:
+              transition: 1
+            continue_on_error: true
+          - delay:
+              milliseconds: 200
+          # Attempt to delete the created scene to avoid storage growth.
+          # Different HA versions use different services, so try both and ignore errors.
+          - service: scene.delete
+            data:
+              scene_id: "{{ scene_backup_id }}"
+            continue_on_error: true
+          - service: scene.remove
+            data:
+              entity_id: "scene.{{ scene_backup_id }}"
+            continue_on_error: true
           - stop: "Halloween effect stopped"
 
       # ============================================================
