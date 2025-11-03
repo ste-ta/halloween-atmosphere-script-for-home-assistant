@@ -1,6 +1,5 @@
-alias: "🎃 Halloween Atmosphere"
-alias: "🎄 Holiday Atmosphere (v2)"
-description: "Creates various spooky or festive lighting effects for holidays (optimized for older bulbs, uses XY color space for better Zigbee compatibility). v2 - adds Christmas and New Year's effects."
+alias: "🎄🎃 🎆 Holiday Atmosphere (v2)"
+description: "Creates various festive lighting effects for holidays (optimized for older bulbs, uses XY color space for better Zigbee compatibility). v2 - adds Christmas and New Year's effects."
 mode: restart
 max_exceeded: silent
 fields:
