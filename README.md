@@ -1,12 +1,13 @@
-# 🎃 Halloween Atmosphere Script for Home Assistant
+# 🎄🎃 🎆 Holiday Atmosphere  Script for Home Assistant
 
-A comprehensive Home Assistant script that creates various spooky lighting effects for Halloween. Optimized for reliability with older smart bulbs.
+A comprehensive Home Assistant script that creates various  lighting effects for Hollidays. Optimized for reliability with older smart bulbs.
 
 ---
 
 **Script Parameters:**
 - `lights` (required): Single entity ID or list of light entity IDs
 - `effect` (required): One of: `hell`, `lightning`, `graveyard`, `halloween`,`blood`, `stop`
+
 
 **Compatibility:**
 - Home Assistant 2023.x and newer
