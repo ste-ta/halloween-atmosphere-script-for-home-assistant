@@ -7,7 +7,7 @@ blueprint:
   domain: script
   author: Home Assistant Community
   homeassistant:
-    min_version: "2023.1"
+    min_version: "2023.1.0"
   input:
     lights:
       name: Lights
