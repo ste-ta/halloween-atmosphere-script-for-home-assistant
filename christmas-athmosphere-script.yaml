@@ -5,9 +5,7 @@ blueprint:
     Optimized for older Philips Hue bulbs and Zigbee lights.
     Includes 6 different effects: Tree, Snowfall, Candlelight, Fireplace, Santa, and Party mode.
   domain: script
-  author: Home Assistant Community
-  homeassistant:
-    min_version: "2023.1.0"
+  author: Stephan
   input:
     lights:
       name: Lights
