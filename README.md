@@ -61,32 +61,66 @@ Creates celebratory New Year's Eve lighting effects
 
 ### 🎄 Christmas Effects
 
-**Xmas Twinkle** - Twinkling white lights with gentle variations
-- Colors: Pure white with subtle variations
-- Brightness: 30-200 (variable twinkle)
-- Transition: 1-3 seconds
+Perfect for cosy evenings – lively but never hectic, designed for relaxing by the fire.
 
-**Xmas Tree** - Classic multicolor Christmas tree lights (red, green, white)
+**Xmas Tree** - Slow multicolor Christmas tree lights (red, green, white)
 - Colors: Red, green, white with warm tones
-- Brightness: 120-255 (bright and festive)
-- Transition: 0.5 seconds
+- Brightness: 110-180 (warm and inviting)
+- Transition: 2 seconds
+- Cycle: 7-11 seconds between colors
 
-**Xmas Snowfall** - Gentle blue and white snowfall effect
-- Colors: Various blues and cool whites
-- Brightness: 20-100 (soft and dreamy)
-- Transition: 3-7 seconds
+**Xmas Snowfall** - Lively blue and white snowfall effect
+- Colors: Various blues and cool whites (includes white for brightness)
+- Brightness: 50-135 (more dynamic and lively)
+- Transitions: 2-4 seconds (faster, more energetic)
+- Pattern: Each light dances independently with staggered timing
+- Color hold: 2-3 seconds between changes (quicker shifts)
+- Cycle: 1-2 second breaks between updates (more frequent)
+- Perfect for: Active, playful winter atmosphere
 
-**Xmas Candlelight** - Warm amber candlelight flicker
-- Colors: Warm amber/golden tones
-- Brightness: 20-120 (warm and cozy)
-- Transition: 1-3 seconds
+**Xmas Candlelight** - Warm orange candlelight with subtle, barely-noticeable flickering
+- Colors: Deep golden orange tones (more saturated)
+- Brightness: 75-90 normal, 70-82 subtle shadow dips (very minimal)
+- Transitions: 0.08s shadow flick down, 0.1s recovery (organic)
+- Pattern: Each light flickers independently at different random times
+- Flicker interval: 1.8-3.8 seconds (long pauses between gentle dips)
+- Shadow intensity: Only 5-10 brightness points (barely perceptible, like real candles)
 
-**Xmas Gift Pulse** - Pulsing multicolor effect like festive presents
+**Xmas Fireplace** - Realistic warm fireplace glow with organic flame movement
+- Colors: Deep warm orange/amber (0.55, 0.39 with variations)
+- Brightness: 100-180 (warm, cozy fireplace glow)
+- Transitions: 2-4 seconds (smooth, natural flame drift)
+- Pattern: Each light moves independently like real fire
+- Color variation: Random warm color shifts throughout the orange spectrum
+- Cycle: 2-4 second color hold, then shifts organically
+- Perfect for: Cosy evenings, ambient fireplace vibe
+
+**Xmas Gift Pulse** - Gentle pulsing multicolor effect like festive presents
 - Colors: Red, green, white
-- Brightness: 255 (full intensity pulse)
-- Transition: 0.2 seconds
+- Brightness: Soft pulse from 80-190 (gentle, not aggressive)
+- Transition: 1.5 seconds per pulse
+- Cycle: 4-7 seconds between colors
 
-**Stop** - Restores lights to previous state with smooth 1-second transition
+**Xmas Santa** - Calm red, white, and green Santa-inspired effect
+- Colors: Red (Santa suit), white (snow/beard), green (Christmas tree)
+- Brightness: 100-160 (cosy and warm)
+- Transition: 5-8 seconds (very peaceful)
+- Cycle: 8-12 seconds
+
+**Xmas Party** - Synchronized dance party optimized for older Philips Hue bulbs
+- Colors: Red, green, white (classic Christmas colors)
+- Brightness: 255 full flashes, 100-150 glow between beats
+- **Hue-Safe Timing**: 100ms per bulb command + 300ms pauses between color changes (prevents freezing)
+- Continuously cycles through 4 party modes, 8 beats each:
+  - **Random Color Strobe**: Each beat flashes random Christmas color at 255, dims to 150
+  - **Three-Color Cycle**: Red → Green → White cycling with recovery pauses
+  - **Red Strobe**: Intense red flashing with Hue-safe delays
+  - **Dark Solo Spotlight**: Each light flashes individually (255) with long recovery pauses
+- 1-second pause between mode changes (allows bulbs to recover)
+- Fully compatible with older Philips Hue bulbs without freezing
+- Perfect for: Party mode without overwhelming older Zigbee hardware
+
+**Stop** - Restores lights to previous state with smooth 2-second transition
 
 ### 🎆 New Year Effects
 
@@ -306,8 +340,13 @@ Don't forget to add your effect name to the selector options at the top!
 
 - **Home Assistant**: 2023.x and newer
 - **Lights**: Any RGB lights supporting `light.turn_on` with `xy_color` and `brightness`
-- **Protocols**: Zigbee, Z-Wave, WiFi (recommended for Zigbee)
-- **Bulbs**: Optimized for Philips Hue, WLED, and similar RGB devices
+- **Protocols**: Zigbee (recommended for Hue), Z-Wave, WiFi
+- **Bulbs**: 
+  - ✅ **Philips Hue** (original & newer models)
+  - ✅ WLED
+  - ✅ IKEA Tradfri
+  - ✅ Dresden Elektronik
+  - ✅ Any Zigbee RGB device
 
 ---
 
