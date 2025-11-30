@@ -1,8 +1,8 @@
 alias: 🎄 Christmas Atmosphere
 description: >-
-  Creates various Christmas lighting effects (optimized for older Philips Hue bulbs,
-  uses XY color space for better Zigbee compatibility and includes error recovery
-  to prevent bulb freezing).
+  Creates various Christmas lighting effects (optimized for older Philips Hue
+  bulbs, uses XY color space for better Zigbee compatibility and includes error
+  recovery to prevent bulb freezing).
 mode: restart
 max_exceeded: silent
 fields:
@@ -24,6 +24,7 @@ fields:
           - xmas_candlelight
           - xmas_fireplace
           - xmas_santa
+          - xmas_dinner
           - xmas_party
           - stop
 variables:
@@ -187,7 +188,9 @@ sequence:
                                   base_xy: "{{ blues | random }}"
                                   bright: "{{ range(55, 135) | random }}"
                               - target:
-                                  entity_id: "{{ lights_list[1] if lights_list|length > 1 else lights_list[0] }}"
+                                  entity_id: >-
+                                    {{ lights_list[1] if lights_list|length > 1
+                                    else lights_list[0] }}
                                 data:
                                   xy_color:
                                     - "{{ base_xy[0] }}"
@@ -219,7 +222,9 @@ sequence:
                                   base_xy: "{{ blues | random }}"
                                   bright: "{{ range(50, 125) | random }}"
                               - target:
-                                  entity_id: "{{ lights_list[2] if lights_list|length > 2 else lights_list[0] }}"
+                                  entity_id: >-
+                                    {{ lights_list[2] if lights_list|length > 2
+                                    else lights_list[0] }}
                                 data:
                                   xy_color:
                                     - "{{ base_xy[0] }}"
@@ -323,7 +328,9 @@ sequence:
                                   chosen_y: "{{ (base_xy[1] + y_jitter) | round(4) }}"
                                   bright: "{{ range(75, 90) | random }}"
                               - target:
-                                  entity_id: "{{ lights_list[1] if lights_list|length > 1 else lights_list[0] }}"
+                                  entity_id: >-
+                                    {{ lights_list[1] if lights_list|length > 1
+                                    else lights_list[0] }}
                                 data:
                                   xy_color:
                                     - "{{ chosen_x }}"
@@ -335,7 +342,9 @@ sequence:
                               - delay:
                                   milliseconds: "{{ range(2200, 3800) | random }}"
                               - target:
-                                  entity_id: "{{ lights_list[1] if lights_list|length > 1 else lights_list[0] }}"
+                                  entity_id: >-
+                                    {{ lights_list[1] if lights_list|length > 1
+                                    else lights_list[0] }}
                                 data:
                                   brightness: "{{ range(70, 82) | random }}"
                                   transition: 0.08
@@ -344,7 +353,9 @@ sequence:
                               - delay:
                                   milliseconds: "{{ range(60, 140) | random }}"
                               - target:
-                                  entity_id: "{{ lights_list[1] if lights_list|length > 1 else lights_list[0] }}"
+                                  entity_id: >-
+                                    {{ lights_list[1] if lights_list|length > 1
+                                    else lights_list[0] }}
                                 data:
                                   brightness: "{{ range(78, 88) | random }}"
                                   transition: 0.1
@@ -370,7 +381,9 @@ sequence:
                                   chosen_y: "{{ (base_xy[1] + y_jitter) | round(4) }}"
                                   bright: "{{ range(75, 90) | random }}"
                               - target:
-                                  entity_id: "{{ lights_list[2] if lights_list|length > 2 else lights_list[0] }}"
+                                  entity_id: >-
+                                    {{ lights_list[2] if lights_list|length > 2
+                                    else lights_list[0] }}
                                 data:
                                   xy_color:
                                     - "{{ chosen_x }}"
@@ -382,7 +395,9 @@ sequence:
                               - delay:
                                   milliseconds: "{{ range(1800, 3200) | random }}"
                               - target:
-                                  entity_id: "{{ lights_list[2] if lights_list|length > 2 else lights_list[0] }}"
+                                  entity_id: >-
+                                    {{ lights_list[2] if lights_list|length > 2
+                                    else lights_list[0] }}
                                 data:
                                   brightness: "{{ range(71, 81) | random }}"
                                   transition: 0.08
@@ -391,7 +406,9 @@ sequence:
                               - delay:
                                   milliseconds: "{{ range(55, 130) | random }}"
                               - target:
-                                  entity_id: "{{ lights_list[2] if lights_list|length > 2 else lights_list[0] }}"
+                                  entity_id: >-
+                                    {{ lights_list[2] if lights_list|length > 2
+                                    else lights_list[0] }}
                                 data:
                                   brightness: "{{ range(78, 88) | random }}"
                                   transition: 0.1
@@ -474,7 +491,9 @@ sequence:
                                   chosen_y: "{{ (base_xy[1] + y_jitter) | round(4) }}"
                                   bright: "{{ range(100, 180) | random }}"
                               - target:
-                                  entity_id: "{{ lights_list[1] if lights_list|length > 1 else lights_list[0] }}"
+                                  entity_id: >-
+                                    {{ lights_list[1] if lights_list|length > 1
+                                    else lights_list[0] }}
                                 data:
                                   xy_color:
                                     - "{{ chosen_x }}"
@@ -503,7 +522,9 @@ sequence:
                                   chosen_y: "{{ (base_xy[1] + y_jitter) | round(4) }}"
                                   bright: "{{ range(100, 180) | random }}"
                               - target:
-                                  entity_id: "{{ lights_list[2] if lights_list|length > 2 else lights_list[0] }}"
+                                  entity_id: >-
+                                    {{ lights_list[2] if lights_list|length > 2
+                                    else lights_list[0] }}
                                 data:
                                   xy_color:
                                     - "{{ chosen_x }}"
@@ -568,6 +589,136 @@ sequence:
                           seconds: 1
                 - delay:
                     seconds: "{{ range(7, 11) | random }}"
+      
+######
+      - conditions:
+          - condition: template
+            value_template: "{{ effect == 'xmas_dinner' }}"
+        sequence:
+          - repeat:
+              for_each: "{{ lights_list }}"
+              sequence:
+                - target:
+                    entity_id: "{{ repeat.item }}"
+                  data:
+                    brightness: 100
+                    xy_color:
+                      - 0.433
+                      - 0.399
+                  continue_on_error: true
+                  action: light.turn_on
+                - delay:
+                    seconds: 1
+          - delay:
+              seconds: 3
+          - repeat:
+              until:
+                - condition: template
+                  value_template: "{{ false }}"
+              sequence:
+                - parallel:
+                    - sequence:
+                        - delay:
+                            seconds: "{{ range(0, 2) | random }}"
+                        - repeat:
+                            until:
+                              - condition: template
+                                value_template: "{{ false }}"
+                            sequence:
+                              - variables:
+                                  dinner_colors:
+                                    - - 0.433
+                                      - 0.399
+                                    - - 0.45
+                                      - 0.39
+                                    - - 0.42
+                                      - 0.405
+                                    - - 0.44
+                                      - 0.395
+                                  base_xy: "{{ dinner_colors | random }}"
+                                  bright: "{{ range(85, 130) | random }}"
+                              - target:
+                                  entity_id: "{{ lights_list[0] }}"
+                                data:
+                                  xy_color:
+                                    - "{{ base_xy[0] }}"
+                                    - "{{ base_xy[1] }}"
+                                  brightness: "{{ bright }}"
+                                  transition: "{{ range(8, 12) | random }}"
+                                continue_on_error: true
+                                action: light.turn_on
+                              - delay:
+                                  seconds: "{{ range(8, 12) | random }}"
+                    - sequence:
+                        - delay:
+                            seconds: "{{ range(2, 5) | random }}"
+                        - repeat:
+                            until:
+                              - condition: template
+                                value_template: "{{ false }}"
+                            sequence:
+                              - variables:
+                                  dinner_colors:
+                                    - - 0.433
+                                      - 0.399
+                                    - - 0.45
+                                      - 0.39
+                                    - - 0.42
+                                      - 0.405
+                                    - - 0.44
+                                      - 0.395
+                                  base_xy: "{{ dinner_colors | random }}"
+                                  bright: "{{ range(85, 130) | random }}"
+                              - target:
+                                  entity_id: "{{ lights_list[1] if lights_list|length > 1 else lights_list[0] }}"
+                                data:
+                                  xy_color:
+                                    - "{{ base_xy[0] }}"
+                                    - "{{ base_xy[1] }}"
+                                  brightness: "{{ bright }}"
+                                  transition: "{{ range(8, 12) | random }}"
+                                continue_on_error: true
+                                action: light.turn_on
+                              - delay:
+                                  seconds: "{{ range(8, 12) | random }}"
+                    - sequence:
+                        - delay:
+                            seconds: "{{ range(4, 8) | random }}"
+                        - repeat:
+                            until:
+                              - condition: template
+                                value_template: "{{ false }}"
+                            sequence:
+                              - variables:
+                                  dinner_colors:
+                                    - - 0.433
+                                      - 0.399
+                                    - - 0.45
+                                      - 0.39
+                                    - - 0.42
+                                      - 0.405
+                                    - - 0.44
+                                      - 0.395
+                                  base_xy: "{{ dinner_colors | random }}"
+                                  bright: "{{ range(85, 130) | random }}"
+                              - target:
+                                  entity_id: "{{ lights_list[2] if lights_list|length > 2 else lights_list[0] }}"
+                                data:
+                                  xy_color:
+                                    - "{{ base_xy[0] }}"
+                                    - "{{ base_xy[1] }}"
+                                  brightness: "{{ bright }}"
+                                  transition: "{{ range(8, 12) | random }}"
+                                continue_on_error: true
+                                action: light.turn_on
+                              - delay:
+                                  seconds: "{{ range(8, 12) | random }}"
+                - delay:
+                    seconds: "{{ range(3, 6) | random }}"
+
+
+####
+      
       - conditions:
           - condition: template
             value_template: "{{ effect == 'xmas_party' }}"
@@ -581,7 +732,9 @@ sequence:
                     count: 8
                     sequence:
                       - variables:
-                          strobe_color: "{{ [['0.6389', '0.3548'], ['0.2138', '0.7097'], ['0.3227', '0.329']] | random }}"
+                          strobe_color: >-
+                            {{ [['0.6389', '0.3548'], ['0.2138', '0.7097'],
+                            ['0.3227', '0.329']] | random }}
                       - repeat:
                           for_each: "{{ lights_list }}"
                           sequence:
