@@ -1,272 +1,249 @@
-alias: "🎃 Halloween Atmosphere"
-description: "Creates various spooky lighting effects for Halloween (optimized for older bulbs, uses XY color space for better Zigbee compatibility).  v1.1"
+alias: 🎃 Halloween Atmosphere
+description: >-
+  Creates various Halloween lighting effects (optimized for older
+  bulbs, uses XY color space for better Zigbee compatibility).
 mode: restart
 max_exceeded: silent
 fields:
   lights:
-    description: "List of light entity IDs"
-    example: "light.living_room, light.hallway, light.kitchen"
+    description: List of light entity IDs
+    example: light.living_room, light.hallway, light.kitchen
     selector:
       entity:
         multiple: true
         domain: light
   effect:
-    description: "Which effect to play"
-    example: "hell"
+    description: Which effect to play
+    example: hell
     selector:
       select:
         options:
-          - "hell"
-          - "lightning"
-          - "graveyard"
-          - "halloween"
-          - "blood"
-          - "stop"
+          - hell
+          - lightning
+          - graveyard
+          - halloween
+          - blood
+          - stop
 variables:
-  # Convert single entity or list to list format
-  lights_list: >
+  lights_list: |
     {{ lights if lights is iterable and lights is not string else [lights] }}
-  # Unique scene id per run to allow parallel executions without clashing
-  scene_backup_id: "halloween_backup_{{ now().strftime('%Y%m%d%H%M%S') }}_{{ range(1000, 9999) | random }}"
+  scene_backup_id: halloween_script_backup
 sequence:
-  # Create a snapshot scene for this run (only when starting an effect)
   - choose:
       - conditions:
           - condition: template
             value_template: "{{ effect != 'stop' }}"
         sequence:
-          - service: scene.create
-            data:
+          - data:
               scene_id: "{{ scene_backup_id }}"
               snapshot_entities: "{{ lights_list }}"
             continue_on_error: true
-
+            action: scene.create
   - choose:
-      # ============================================================
-      # 🛑 STOP - End effect and restore lights
-      # ============================================================
       - conditions:
           - condition: template
             value_template: "{{ effect == 'stop' }}"
         sequence:
-          # Try restoring the snapshot scene created at start of this run
-          - service: scene.turn_on
-            target:
-              entity_id: "scene.{{ scene_backup_id }}"
+          - target:
+              entity_id: scene.{{ scene_backup_id }}
             data:
               transition: 1
             continue_on_error: true
+            action: scene.turn_on
           - delay:
-              milliseconds: 200
-          # Attempt to delete the created scene to avoid storage growth.
-          # Different HA versions use different services, so try both and ignore errors.
-          - service: scene.delete
-            data:
-              scene_id: "{{ scene_backup_id }}"
-            continue_on_error: true
-          - service: scene.remove
-            data:
-              entity_id: "scene.{{ scene_backup_id }}"
-            continue_on_error: true
-          - stop: "Halloween effect stopped"
-
-      # ============================================================
-      # 🔥 HELL - Red and orange flickering flames
-      # ============================================================
+              milliseconds: 1000
+          - continue_on_error: true
+            action: scene.delete
+            target:
+              entity_id: scene.{{ scene_backup_id }}
+          - stop: Halloween effect stopped
       - conditions:
           - condition: template
             value_template: "{{ effect == 'hell' }}"
         sequence:
-          # Initialize all lights to a base state
           - repeat:
               for_each: "{{ lights_list }}"
               sequence:
-                - service: light.turn_on
-                  target:
+                - target:
                     entity_id: "{{ repeat.item }}"
                   data:
                     brightness: 200
-                    xy_color: [0.6736, 0.3221]  # Red-orange
+                    xy_color:
+                      - 0.6736
+                      - 0.3221
                   continue_on_error: true
-                # Small delay between each light command
+                  action: light.turn_on
                 - delay:
                     milliseconds: 100
           - delay:
               milliseconds: 1000
-          # Main effect loop
           - repeat:
               until:
                 - condition: template
                   value_template: "{{ false }}"
               sequence:
-                # Apply effect to each light with proper spacing
                 - repeat:
                     for_each: "{{ lights_list }}"
                     sequence:
                       - variables:
-                          # Color palette: reds and oranges (XY color space)
                           colors:
-                            - [0.7006, 0.2993]  # Pure red
-                            - [0.6736, 0.3221]  # Red-orange
-                            - [0.6389, 0.3548]  # Orange
-                            - [0.6750, 0.3220]  # Dark red
-                          # Brightness variations
+                            - - 0.7006
+                              - 0.2993
+                            - - 0.6736
+                              - 0.3221
+                            - - 0.6389
+                              - 0.3548
+                            - - 0.675
+                              - 0.322
                           brightness_levels:
                             - 255
                             - 200
                             - 150
                             - 100
-                      - service: light.turn_on
-                        target:
+                      - target:
                           entity_id: "{{ repeat.item }}"
                         data:
                           xy_color: "{{ colors | random }}"
                           brightness: "{{ brightness_levels | random }}"
                           transition: "{{ range(2, 4) | random }}"
                         continue_on_error: true
-                      # Mandatory delay between commands (critical for old Hue bulbs)
+                        action: light.turn_on
                       - delay:
                           milliseconds: 150
-                # Wait before next cycle
                 - delay:
                     seconds: "{{ range(4, 7) | random }}"
-
-      # ============================================================
-      # ⚡ LIGHTNING - Fast white flashes with darkness
-      # ============================================================
       - conditions:
           - condition: template
             value_template: "{{ effect == 'lightning' }}"
         sequence:
-          # Initialize all lights to dark state
           - repeat:
               for_each: "{{ lights_list }}"
               sequence:
-                - service: light.turn_on
-                  target:
+                - target:
                     entity_id: "{{ repeat.item }}"
                   data:
                     brightness: 5
-                    xy_color: [0.3127, 0.329]  # Cool bluish-white
+                    xy_color:
+                      - 0.3127
+                      - 0.329
                   continue_on_error: true
+                  action: light.turn_on
                 - delay:
                     milliseconds: 100
           - delay:
               milliseconds: 1000
-          # Main effect loop
           - repeat:
               until:
                 - condition: template
                   value_template: "{{ false }}"
               sequence:
                 - variables:
-                    # Random wait time until next lightning
                     lightning_wait_time: "{{ range(2, 4) | random }}"
-                    # Number of flashes in this sequence
                     lightning_count: "{{ range(4, 10) | random }}"
-                # Set all lights to dark
                 - repeat:
                     for_each: "{{ lights_list }}"
                     sequence:
-                      - service: light.turn_on
-                        target:
+                      - target:
                           entity_id: "{{ repeat.item }}"
                         data:
                           brightness: "{{ range(2, 10) | random }}"
-                          xy_color: [0.3127, 0.329]  # Cool bluish-white
+                          xy_color:
+                            - 0.3127
+                            - 0.329
                           transition: 1
                         continue_on_error: true
+                        action: light.turn_on
                       - delay:
                           milliseconds: 50
-                # Wait in darkness
                 - delay:
                     seconds: "{{ lightning_wait_time }}"
-                # Lightning flash sequence
                 - repeat:
                     count: "{{ lightning_count }}"
                     sequence:
-                      # Flash on - staggered across lights
                       - repeat:
                           for_each: "{{ lights_list }}"
                           sequence:
-                            - service: light.turn_on
-                              target:
+                            - target:
                                 entity_id: "{{ repeat.item }}"
                               data:
                                 brightness: 255
-                                xy_color: [0.3227, 0.329]  # Bright white
+                                xy_color:
+                                  - 0.3227
+                                  - 0.329
                                 transition: 0
                               continue_on_error: true
-                            # Delay creates traveling effect + prevents command overflow
+                              action: light.turn_on
                             - delay:
                                 milliseconds: 50
-                      # Short pause at peak brightness
                       - delay:
                           milliseconds: "{{ range(20, 200) | random }}"
-                      # Flash off - staggered across lights
                       - repeat:
                           for_each: "{{ lights_list }}"
                           sequence:
-                            - service: light.turn_on
-                              target:
+                            - target:
                                 entity_id: "{{ repeat.item }}"
                               data:
                                 brightness: "{{ range(3, 10) | random }}"
-                                xy_color: [0.3127, 0.329]  # Cool bluish-white
+                                xy_color:
+                                  - 0.3127
+                                  - 0.329
                                 transition: 0
                               continue_on_error: true
+                              action: light.turn_on
                             - delay:
                                 milliseconds: 100
-                      # Pause between flashes
                       - delay:
                           milliseconds: "{{ range(200, 600) | random }}"
-
-      # ============================================================
-      # 🪦 GRAVEYARD - Slow green-blue fog effects
-      # ============================================================
       - conditions:
           - condition: template
             value_template: "{{ effect == 'graveyard' }}"
         sequence:
-          # Initialize all lights to base fog color
           - repeat:
               for_each: "{{ lights_list }}"
               sequence:
-                - service: light.turn_on
-                  target:
+                - target:
                     entity_id: "{{ repeat.item }}"
                   data:
                     brightness: 40
-                    xy_color: [0.2039, 0.4443]  # Dark teal
+                    xy_color:
+                      - 0.2039
+                      - 0.4443
                   continue_on_error: true
+                  action: light.turn_on
                 - delay:
                     milliseconds: 100
           - delay:
               milliseconds: 1000
-          # Main effect loop
           - repeat:
               until:
                 - condition: template
                   value_template: "{{ false }}"
               sequence:
-                # Apply effect to each light sequentially
                 - repeat:
                     for_each: "{{ lights_list }}"
                     sequence:
                       - variables:
-                          # Dark, eerie color palette (XY color space)
                           colors:
-                            - [0.1724, 0.6531]  # Muted poison green
-                            - [0.2039, 0.4443]  # Dark teal
-                            - [0.1607, 0.2218]  # Fog blue (very dark)
-                            - [0.2182, 0.6225]  # Gloomy moss green
-                            - [0.1649, 0.5703]  # Sickly lime green
-                            - [0.2127, 0.3608]  # Deep sea green
-                            - [0.1532, 0.2947]  # Midnight blue
-                            - [0.1940, 0.4953]  # Toxic green
-                            - [0.1781, 0.2843]  # Ghost blue
-                            - [0.2458, 0.5841]  # Swamp green
-                          # Low brightness for creepy atmosphere
+                            - - 0.1724
+                              - 0.6531
+                            - - 0.2039
+                              - 0.4443
+                            - - 0.1607
+                              - 0.2218
+                            - - 0.2182
+                              - 0.6225
+                            - - 0.1649
+                              - 0.5703
+                            - - 0.2127
+                              - 0.3608
+                            - - 0.1532
+                              - 0.2947
+                            - - 0.194
+                              - 0.4953
+                            - - 0.1781
+                              - 0.2843
+                            - - 0.2458
+                              - 0.5841
                           brightness_levels:
                             - 40
                             - 50
@@ -274,167 +251,156 @@ sequence:
                             - 60
                             - 35
                             - 45
-                      - service: light.turn_on
-                        target:
+                      - target:
                           entity_id: "{{ repeat.item }}"
                         data:
                           xy_color: "{{ colors | random }}"
                           brightness: "{{ brightness_levels | random }}"
                           transition: "{{ range(5, 10) | random }}"
                         continue_on_error: true
-                      # Longer delay for slow transitions
+                        action: light.turn_on
                       - delay:
                           milliseconds: 200
-                # Long pause between changes
                 - delay:
                     seconds: "{{ range(6, 14) | random }}"
-
-      # ============================================================
-      # 🎃 HALLOWEEN - Classic orange-purple-green combination
-      # ============================================================
       - conditions:
           - condition: template
             value_template: "{{ effect == 'halloween' }}"
         sequence:
-          # Initialize all lights to pumpkin orange
           - repeat:
               for_each: "{{ lights_list }}"
               sequence:
-                - service: light.turn_on
-                  target:
+                - target:
                     entity_id: "{{ repeat.item }}"
                   data:
                     brightness: 200
-                    xy_color: [0.6389, 0.3548]  # Pumpkin orange
+                    xy_color:
+                      - 0.6389
+                      - 0.3548
                   continue_on_error: true
+                  action: light.turn_on
                 - delay:
                     milliseconds: 100
           - delay:
               milliseconds: 1000
-          # Main effect loop
           - repeat:
               until:
                 - condition: template
                   value_template: "{{ false }}"
               sequence:
-                # Apply effect to each light sequentially
                 - repeat:
                     for_each: "{{ lights_list }}"
                     sequence:
                       - variables:
-                          # Halloween color palette (XY color space)
                           colors:
-                            - [0.6389, 0.3548]  # Pumpkin orange
-                            - [0.3645, 0.1765]  # Purple
-                            - [0.3833, 0.1591]  # Dark purple
-                            - [0.5801, 0.3959]  # Bright orange
-                            - [0.2138, 0.7097]  # Poison green
-                            - [0.2679, 0.6616]  # Lime green
-                          # Brightness variations
+                            - - 0.6389
+                              - 0.3548
+                            - - 0.3645
+                              - 0.1765
+                            - - 0.3833
+                              - 0.1591
+                            - - 0.5801
+                              - 0.3959
+                            - - 0.2138
+                              - 0.7097
+                            - - 0.2679
+                              - 0.6616
                           brightness_levels:
                             - 200
                             - 180
                             - 150
                             - 220
-                      - service: light.turn_on
-                        target:
+                      - target:
                           entity_id: "{{ repeat.item }}"
                         data:
                           xy_color: "{{ colors | random }}"
                           brightness: "{{ brightness_levels | random }}"
                           transition: "{{ range(3, 6) | random }}"
                         continue_on_error: true
-                      # Stagger for lively effect + prevent command overflow
+                        action: light.turn_on
                       - delay:
                           milliseconds: 150
-                # Wait before next cycle
                 - delay:
                     seconds: "{{ range(4, 9) | random }}"
-
-      # ============================================================
-      # 🩸 BLOOD PULSE - Heartbeat rhythm
-      # ============================================================
       - conditions:
           - condition: template
             value_template: "{{ effect == 'blood' }}"
         sequence:
-          # Initialize all lights to dark red
           - repeat:
               for_each: "{{ lights_list }}"
               sequence:
-                - service: light.turn_on
-                  target:
+                - target:
                     entity_id: "{{ repeat.item }}"
                   data:
                     brightness: 10
-                    xy_color: [0.6750, 0.3220]  # Dark red
+                    xy_color:
+                      - 0.675
+                      - 0.322
                   continue_on_error: true
+                  action: light.turn_on
                 - delay:
                     milliseconds: 100
           - delay:
               milliseconds: 1000
-          # Main effect loop - heartbeat pattern
           - repeat:
               until:
                 - condition: template
                   value_template: "{{ false }}"
               sequence:
-                # First heartbeat (LUB)
                 - repeat:
                     for_each: "{{ lights_list }}"
                     sequence:
                       - variables:
                           colors:
-                            - [0.6750, 0.3220]  # Dark red
-                            - [0.7006, 0.2993]  # Blood red
-                            - [0.6850, 0.3088]  # Crimson
-                      - service: light.turn_on
-                        target:
+                            - - 0.675
+                              - 0.322
+                            - - 0.7006
+                              - 0.2993
+                            - - 0.685
+                              - 0.3088
+                      - target:
                           entity_id: "{{ repeat.item }}"
                         data:
                           xy_color: "{{ colors | random }}"
                           brightness: "{{ range(150, 200) | random }}"
                           transition: 0.3
                         continue_on_error: true
+                        action: light.turn_on
                 - delay:
                     milliseconds: 200
-                # Fade down
                 - repeat:
                     for_each: "{{ lights_list }}"
                     sequence:
-                      - service: light.turn_on
-                        target:
+                      - target:
                           entity_id: "{{ repeat.item }}"
                         data:
                           brightness: "{{ range(20, 40) | random }}"
                           transition: 0.4
                         continue_on_error: true
+                        action: light.turn_on
                 - delay:
                     milliseconds: 150
-                # Second heartbeat (DUB)
                 - repeat:
                     for_each: "{{ lights_list }}"
                     sequence:
-                      - service: light.turn_on
-                        target:
+                      - target:
                           entity_id: "{{ repeat.item }}"
                         data:
                           brightness: "{{ range(120, 160) | random }}"
                           transition: 0.3
                         continue_on_error: true
+                        action: light.turn_on
                 - delay:
                     milliseconds: 200
-                # Fade to dark
                 - repeat:
                     for_each: "{{ lights_list }}"
                     sequence:
-                      - service: light.turn_on
-                        target:
+                      - target:
                           entity_id: "{{ repeat.item }}"
                         data:
                           brightness: "{{ range(5, 15) | random }}"
                           transition: 0.8
                         continue_on_error: true
-                # Pause before next heartbeat
+                        action: light.turn_on
                 - delay:
                     seconds: "{{ range(2, 4) | random }}"
